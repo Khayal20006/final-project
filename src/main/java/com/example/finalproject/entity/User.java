@@ -29,6 +29,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
     @OneToMany(mappedBy = "user",cascade =CascadeType.ALL)
     private List<Reservation>reservations;
 }

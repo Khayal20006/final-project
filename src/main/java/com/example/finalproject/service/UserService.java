@@ -5,6 +5,7 @@ import com.example.finalproject.config.SecurityConfig;
 import com.example.finalproject.dto.UserDto;
 import com.example.finalproject.entity.Reservation;
 import com.example.finalproject.entity.User;
+import com.example.finalproject.entity.enums.Role;
 import com.example.finalproject.exception.UserNotFoundException;
 import com.example.finalproject.repository.UserRepository;
 import com.example.finalproject.util.JwtUtil;
@@ -34,7 +35,7 @@ public class UserService {
         User user = new User();
         List<Reservation> reservations = new ArrayList<>();
         user.setEmail(userDto.getEmail());
-        user.setRole(userDto.getRole());
+        user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setFullName(userDto.getFullName());
         user.setReservations(reservations);
