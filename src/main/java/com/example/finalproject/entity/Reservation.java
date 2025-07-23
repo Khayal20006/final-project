@@ -34,6 +34,4 @@ public class Reservation {
 
     private Double totalAmount;
 
-    @OneToOne(mappedBy = "reservation")
-    private Payment payment;
 }

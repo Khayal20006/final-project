@@ -1,15 +1,16 @@
 package com.example.finalproject.service;
 
+import com.example.finalproject.config.PasswordConfig;
 import com.example.finalproject.config.SecurityConfig;
 import com.example.finalproject.dto.UserDto;
 import com.example.finalproject.entity.Reservation;
 import com.example.finalproject.entity.User;
+import com.example.finalproject.exception.UserNotFoundException;
 import com.example.finalproject.repository.UserRepository;
-import com.example.finalproject.util.PasswordUtil;
+import com.example.finalproject.util.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.buf.B2CConverter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,14 +20,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordUtil passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
     }
     @Transactional
     public User createUser(UserDto userDto) {
@@ -42,7 +43,7 @@ public class UserService {
     @Transactional
     public User updateUser(Long id, UserDto userDto) {
         List<Reservation> reservations = new ArrayList<>();
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
         user.setEmail(userDto.getEmail());
         user.setRole(userDto.getRole());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
@@ -52,7 +53,7 @@ public class UserService {
     }
     @Transactional
     public void deleteUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
          userRepository.delete(user);
     }
 }

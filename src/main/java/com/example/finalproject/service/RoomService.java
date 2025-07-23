@@ -3,6 +3,9 @@ package com.example.finalproject.service;
 import com.example.finalproject.dto.RoomDto;
 import com.example.finalproject.entity.Hotel;
 import com.example.finalproject.entity.Room;
+import com.example.finalproject.entity.enums.RoomType;
+import com.example.finalproject.exception.HotelNotFoundException;
+import com.example.finalproject.exception.RoomNotFoundException;
 import com.example.finalproject.repository.HotelRepository;
 import com.example.finalproject.repository.RoomRepository;
 import jakarta.transaction.Transactional;
@@ -11,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,26 +37,37 @@ public class RoomService {
     }
 
     @Transactional
-    public Room addRoom(RoomDto roomDto) {
-        Room room = new Room();
-        room.setRoomNumber(roomDto.getRoomNumber());
-        room.setCapacity(roomDto.getCapacity());
-        room.setPrice(roomDto.getPrice());
-        room.setIsAvailable(roomDto.getIsAvailable());
+    public void addRooms(List<RoomDto> roomDtos) {
+        List<Long> hotelIds = roomDtos.stream()
+                .map(RoomDto::getHotelId)
+                .toList();
 
-        if (roomDto.getHotelId() != null) {
-            Hotel hotel = hotelRepository.findById(roomDto.getHotelId())
-                    .orElseThrow(() -> new RuntimeException("Hotel not found with id: " + roomDto.getHotelId()));
+        List<Hotel> hotels = hotelRepository.findAllById(hotelIds);
+
+        Map<Long, Hotel> hotelMap = hotels.stream()
+                .collect(Collectors.toMap(Hotel::getId, h -> h));
+
+        for (RoomDto dto : roomDtos) {
+            Room room = new Room();
+            room.setRoomNumber(dto.getRoomNumber());
+            room.setCapacity(dto.getCapacity());
+            room.setPrice(dto.getPrice());
+            room.setIsAvailable(dto.getIsAvailable());
+            room.setType(dto.getRoomType());
+
+            Hotel hotel = hotelMap.get(dto.getHotelId());
+            if (hotel == null) {
+                throw new HotelNotFoundException("Hotel not found id: " + dto.getHotelId());
+            }
             room.setHotel(hotel);
-        }
 
-        room.setReservation(null);
-        return roomRepository.save(room);
+            roomRepository.save(room);
+        }
     }
 
     public Room getRoomById(Long id) {
         return roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found with id: " + id));
+                .orElseThrow(() -> new RoomNotFoundException("Room not found  id: " + id));
     }
 
     @Transactional
@@ -61,9 +78,12 @@ public class RoomService {
         room.setCapacity(roomDto.getCapacity());
         room.setPrice(roomDto.getPrice());
         room.setIsAvailable(roomDto.getIsAvailable());
+        room.setType(roomDto.getRoomType());
+
         Hotel hotel = hotelRepository.findById(roomDto.getHotelId())
-                .orElseThrow(() -> new RuntimeException("Hotel not found with id: " + roomDto.getHotelId()));
+                .orElseThrow(() -> new HotelNotFoundException("Hotel not found for id: " + roomDto.getHotelId()));
         room.setHotel(hotel);
+
         return roomRepository.save(room);
     }
 
@@ -78,12 +98,11 @@ public class RoomService {
     }
 
     public List<Room> findRoomByCapacityRange(Integer minCapacity, Integer maxCapacity) {
-        return roomRepository.findRoomByCapacityRange(minCapacity, maxCapacity);
+        Predicate<Room> roomPredicate =(r)->r.getCapacity()>=minCapacity&&r.getCapacity()<=maxCapacity;
+        return getAllRooms().stream().filter(roomPredicate).toList();
     }
 
     public List<Room> findAvailableRoomsByDateRange(LocalDate checkInDate, LocalDate checkOutDate) {
         return roomRepository.findAvailableRoomsByDateRange(checkInDate, checkOutDate);
     }
-
-
 }

@@ -21,24 +21,15 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "User login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequest) {
-        try {
             LoginResponseDto response = authService.login(loginRequest);
             return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(new LoginResponseDto(null, e.getMessage(), null));
-        }
     }
 
     @PostMapping("/register")
     @Operation(summary = "User registration")
     public ResponseEntity<LoginResponseDto> register(@RequestBody UserDto userDto) {
-        try {
             LoginResponseDto response = authService.register(userDto);
             return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest()
-                    .body(new LoginResponseDto(null, e.getMessage(), null));
-        }
+
     }
 }

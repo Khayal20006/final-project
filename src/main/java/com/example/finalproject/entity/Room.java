@@ -1,4 +1,6 @@
 package com.example.finalproject.entity;
+import com.example.finalproject.entity.enums.RoomType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,9 +25,14 @@ public class Room {
 
     @ManyToOne
     @JoinColumn(name = "hotel_id")
+    @JsonIgnore
     private Hotel hotel;
 
     @OneToOne(mappedBy = "room")
+    @JsonIgnore
     private Reservation reservation;
+
+    @Enumerated(EnumType.STRING)
+    private RoomType type;
 }
 

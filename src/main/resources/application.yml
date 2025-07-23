@@ -3,6 +3,9 @@ spring:
     user:
       name: user
       password: 1234
+    oauth2:
+      resourceserver:
+
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
@@ -17,3 +20,6 @@ spring:
       hibernate:
         format_sql: true
 
+dreamSecretKey2006: mySuperSecretKeyThatIsLongEnough123456!
+jwt:
+  expiration: 86400000

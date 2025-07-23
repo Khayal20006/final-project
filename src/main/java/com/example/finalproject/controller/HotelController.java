@@ -3,7 +3,8 @@ package com.example.finalproject.controller;
 import com.example.finalproject.dto.HotelDto;
 import com.example.finalproject.entity.Hotel;
 import com.example.finalproject.service.HotelService;
-import jakarta.transaction.Transactional;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,30 +14,36 @@ import java.util.List;
 @RestController
 @RequestMapping("/hotel/")
 @RequiredArgsConstructor
+@Tag(name = "Hotel Controller", description = "Hotel ilə bağlı əməliyyatlar")
 public class HotelController {
     private final HotelService hotelService;
 
     @PostMapping("/admin/createHotel")
+    @Operation(summary = "Yeni hotel yarat")
     public Hotel createHotel(@RequestBody HotelDto hotelDto) {
         return hotelService.createHotel(hotelDto);
     }
 
     @GetMapping("/getAllHotels")
+    @Operation(summary = "Bütün hotelləri gətir", description = "Sistemdə mövcud olan bütün hotelləri göstərir")
     public ResponseEntity<List<Hotel>> getAllHotels() {
         return ResponseEntity.ok(hotelService.getAllHotels());
     }
 
     @GetMapping("/getHotelByID/{id}")
+    @Operation(summary = "Hotelleri sadece id leri yazmaqla getir")
     public Hotel getHotelById(@PathVariable Long id) {
         return hotelService.getHotelById(id);
     }
 
     @PutMapping("/admin/updateHotel/{id}")
+    @Operation(summary = "Hoteli id ilə yenilə", description = "id-ni yazmaqla hoteli yeniləmək")
     public Hotel updateHotel(@PathVariable Long id, @RequestBody HotelDto hotelDto) {
         return hotelService.updateHotel(id, hotelDto);
     }
 
     @DeleteMapping("/admin/deleteHotelById/{id}")
+    @Operation(summary = "Hotel sil", description = "ID-yə uyğun hotel silinir")
     public void deleteHotel(@PathVariable Long id) {
         hotelService.deleteHotel(id);
     }

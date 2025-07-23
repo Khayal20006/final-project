@@ -4,6 +4,8 @@ import com.example.finalproject.dto.LoginResponseDto;
 import com.example.finalproject.dto.UserDto;
 import com.example.finalproject.entity.User;
 import com.example.finalproject.entity.enums.Role;
+import com.example.finalproject.exception.UserNotFoundException;
+import com.example.finalproject.exception.WrongPasswordException;
 import com.example.finalproject.repository.UserRepository;
 import com.example.finalproject.util.JwtUtil;
 import jakarta.transaction.Transactional;
@@ -24,10 +26,10 @@ public class AuthService {
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new WrongPasswordException("Wrong password");
         }
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 

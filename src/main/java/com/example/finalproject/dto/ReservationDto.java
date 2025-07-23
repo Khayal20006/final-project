@@ -1,12 +1,14 @@
 package com.example.finalproject.dto;
 
 import com.example.finalproject.entity.enums.Status;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
 public class ReservationDto {
+    @Schema(hidden = true)
     private Long id;
     private Status status;
     private Long userId;

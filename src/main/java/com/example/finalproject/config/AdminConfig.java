@@ -8,7 +8,9 @@ import com.example.finalproject.entity.enums.Role;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Configurationg
+@Configuration
+
+
 @RequiredArgsConstructor
 public class AdminConfig {
 
@@ -28,7 +30,7 @@ public class AdminConfig {
                 admin.setRole(Role.ADMIN);
 
                 userRepository.save(admin);
-                System.out.println(" Admin istifadəçisi uğurla yaradıldı.");
+                System.out.println(" Admin istifadəçisi  yaradıldı.");
             } else {
                 System.out.println("Admin istifadəçisi artıq mövcuddur.");
             }

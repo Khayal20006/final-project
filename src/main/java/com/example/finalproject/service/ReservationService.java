@@ -5,6 +5,8 @@ import com.example.finalproject.entity.Reservation;
 import com.example.finalproject.entity.Room;
 import com.example.finalproject.entity.enums.Status;
 import com.example.finalproject.entity.User;
+import com.example.finalproject.exception.ReservationNotFoundException;
+import com.example.finalproject.exception.UserNotFoundException;
 import com.example.finalproject.repository.ReservationRepository;
 import com.example.finalproject.repository.RoomRepository;
 import com.example.finalproject.repository.UserRepository;
@@ -46,7 +48,7 @@ public class ReservationService {
     }
     public List<Reservation> getReservationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return reservationRepository.findAllReservationByUser((user));
     }
     public List<Reservation> getReservationsByStatus(Status status) {
@@ -56,7 +58,7 @@ public class ReservationService {
 
     public void cancelReservation(Long id) {
         Reservation reservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found"));
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found"));
 
         Room room = reservation.getRoom();
 
