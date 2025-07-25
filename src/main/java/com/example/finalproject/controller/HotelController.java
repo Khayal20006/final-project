@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,10 +15,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/hotel/")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Hotel Controller", description = "Hotel ilə bağlı əməliyyatlar")
 public class HotelController {
     private final HotelService hotelService;
-
     @PostMapping("/admin/createHotel")
     @Operation(summary = "Yeni hotel yarat")
     public Hotel createHotel(@RequestBody HotelDto hotelDto) {

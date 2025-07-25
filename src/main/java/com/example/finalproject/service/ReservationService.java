@@ -1,11 +1,12 @@
 package com.example.finalproject.service;
-
+import org.springframework.security.core.Authentication;
 import com.example.finalproject.dto.ReservationDto;
 import com.example.finalproject.entity.Reservation;
 import com.example.finalproject.entity.Room;
 import com.example.finalproject.entity.enums.Status;
 import com.example.finalproject.entity.User;
 import com.example.finalproject.exception.ReservationNotFoundException;
+import com.example.finalproject.exception.RoomNotFoundException;
 import com.example.finalproject.exception.UserNotFoundException;
 import com.example.finalproject.repository.ReservationRepository;
 import com.example.finalproject.repository.RoomRepository;
@@ -13,6 +14,7 @@ import com.example.finalproject.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,16 +32,29 @@ public class ReservationService {
         return reservationRepository.findAllByUserId(userId);
     }
 
-    public Reservation createReservation(ReservationDto reservationDto) {
-        User user = userRepository.findById(reservationDto.getUserId()).orElseThrow(() -> new RuntimeException("User not find"));
-        Room room = roomRepository.findById(reservationDto.getRoomId()).orElseThrow(() -> new RuntimeException("Room not find"));
+    public Reservation createReservation(ReservationDto dto, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        Room room = roomRepository.findById(dto.getRoomId())
+                .orElseThrow(() -> new RoomNotFoundException("Room not found"));
+
+        long nights = ChronoUnit.DAYS.between(dto.getCheckInDate(), dto.getCheckOutDate());
+        double totalAmount = nights * room.getPrice();
+
         Reservation reservation = new Reservation();
-        reservation.setRoom(room);
         reservation.setUser(user);
-        room.setIsAvailable(false);
+        reservation.setRoom(room);
+        reservation.setCheckInDate(dto.getCheckInDate());
+        reservation.setCheckOutDate(dto.getCheckOutDate());
+        reservation.setTotalAmount(totalAmount);
         reservation.setStatus(Status.PENDING);
+
+        room.setIsAvailable(false);
+        roomRepository.save(room);
         return reservationRepository.save(reservation);
     }
+
 
     public Reservation updateReservationStatus(Long id, Status status) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new RuntimeException("Reservation not found"));

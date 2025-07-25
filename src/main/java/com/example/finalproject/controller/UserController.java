@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/hotel/users")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 @Tag(description = "Userle bagli butun esas emeliyyetlar admin ucun",name = "User emeliyyatlari")
 public class UserController {
 

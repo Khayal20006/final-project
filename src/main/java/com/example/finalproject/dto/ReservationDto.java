@@ -10,10 +10,13 @@ import java.time.LocalDate;
 public class ReservationDto {
     @Schema(hidden = true)
     private Long id;
+    @Schema(hidden = true)
     private Status status;
+    @Schema(hidden = true)
     private Long userId;
     private Long roomId;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
+    @Schema(hidden = true)
     private Double totalAmount;
 }

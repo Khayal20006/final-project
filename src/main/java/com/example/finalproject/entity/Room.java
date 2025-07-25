@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -28,7 +31,7 @@ public class Room {
     @JsonIgnore
     private Hotel hotel;
 
-    @OneToOne(mappedBy = "room")
+    @ManyToOne
     @JsonIgnore
     private Reservation reservation;
 

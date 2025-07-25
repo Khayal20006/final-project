@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,36 +24,42 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Bütün rezervasiyaları gətir")
     public ResponseEntity<List<Reservation>> getAllReservations() {
         return ResponseEntity.ok(reservationService.getAllReservations());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/user/{userId}")
     @Operation(summary = "İstifadəçiyə görə rezervasiyaları gətir")
     public ResponseEntity<List<Reservation>> getReservationsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(reservationService.getReservationsByUserId(userId));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/status/{status}")
     @Operation(summary = "Status-a görə rezervasiyaları gətir")
     public ResponseEntity<List<Reservation>> getReservationsByStatus(@PathVariable Status status) {
         return ResponseEntity.ok(reservationService.getReservationsByStatus(status));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     @Operation(summary = "Yeni rezervasiya yarat")
-    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationDto dto) {
-        Reservation reservation = reservationService.createReservation(dto);
+    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationDto dto, Authentication authentication) {
+        Reservation reservation = reservationService.createReservation(dto, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/status")
     @Operation(summary = "Rezervasiyanın statusunu dəyiş")
     public ResponseEntity<Reservation> updateReservationStatus(@PathVariable Long id, @RequestParam Status status) {
         return ResponseEntity.ok(reservationService.updateReservationStatus(id, status));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/cancel")
     @Operation(summary = "Rezervasiyanı ləğv et")
     public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
@@ -59,6 +67,7 @@ public class ReservationController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/byUser/{userId}")
     @Operation(summary = "Alternativ yolla istifadəçiyə görə rezervasiyaları gətir")
     public ResponseEntity<List<Reservation>> findAllByUserId(@PathVariable Long userId) {
