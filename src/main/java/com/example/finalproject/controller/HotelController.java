@@ -21,13 +21,13 @@ public class HotelController {
     private final HotelService hotelService;
     @PostMapping("/admin/createHotel")
     @Operation(summary = "Yeni hotel yarat")
-    public Hotel createHotel(@RequestBody HotelDto hotelDto) {
+    public HotelDto createHotel(@RequestBody HotelDto hotelDto) {
         return hotelService.createHotel(hotelDto);
     }
 
     @GetMapping("/getAllHotels")
     @Operation(summary = "Bütün hotelləri gətir", description = "Sistemdə mövcud olan bütün hotelləri göstərir")
-    public ResponseEntity<List<Hotel>> getAllHotels() {
+    public ResponseEntity<List<HotelDto>> getAllHotels() {
         return ResponseEntity.ok(hotelService.getAllHotels());
     }
 
@@ -39,7 +39,7 @@ public class HotelController {
 
     @PutMapping("/admin/updateHotel/{id}")
     @Operation(summary = "Hoteli id ilə yenilə", description = "id-ni yazmaqla hoteli yeniləmək")
-    public Hotel updateHotel(@PathVariable Long id, @RequestBody HotelDto hotelDto) {
+    public HotelDto updateHotel(@PathVariable Long id, @RequestBody HotelDto hotelDto) {
         return hotelService.updateHotel(id, hotelDto);
     }
 

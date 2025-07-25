@@ -16,8 +16,9 @@ public class Hotel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true,nullable = false)
     private String name;
-    @Column(unique = true)
+    @Column(unique = true,nullable = false)
     private String address;
     private Integer stars;
     @OneToMany(mappedBy = "hotel", fetch = FetchType.LAZY)
