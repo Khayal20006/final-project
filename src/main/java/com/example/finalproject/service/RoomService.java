@@ -21,12 +21,21 @@ import java.util.stream.Collectors;
 public class RoomService {
     private final HotelRepository hotelRepository;
     private final RoomRepository roomRepository;
-    private final RoomMapper mapper;
 
     public List<RoomDto> findAvailableRoomsByHotel(Long hotelId) {
         List<Room> rooms = roomRepository.findAvailableRoomsByHotel(hotelId);
         return rooms.stream()
-                .map(mapper::toDto)
+                .map(room -> {
+                    RoomDto dto = new RoomDto();
+                    dto.setId(room.getId());
+                    dto.setRoomNumber(room.getRoomNumber());
+                    dto.setCapacity(room.getCapacity());
+                    dto.setPrice(room.getPrice());
+                    dto.setIsAvailable(room.getIsAvailable());
+                    dto.setRoomType(room.getType());
+                    dto.setHotelId(room.getHotel().getId());
+                    return dto;
+                })
                 .toList();
     }
 
@@ -45,32 +54,43 @@ public class RoomService {
                 .distinct()
                 .toList();
 
-        Map<Long, Hotel> hotelMap = hotelRepository.findAllById(hotelIds).stream()
+        List<Hotel> hotels = hotelRepository.findAllById(hotelIds);
+
+        Map<Long, Hotel> hotelMap = hotels.stream()
                 .collect(Collectors.toMap(Hotel::getId, h -> h));
 
-        List<Room> rooms = roomDtos.stream().map(dto -> {
-            Room room = mapper.toEntity(dto);
+        for (RoomDto dto : roomDtos) {
+            Room room = new Room();
+            room.setRoomNumber(dto.getRoomNumber());
+            room.setCapacity(dto.getCapacity());
+            room.setPrice(dto.getPrice());
+            room.setIsAvailable(dto.getIsAvailable());
+            room.setType(dto.getRoomType());
+
             Hotel hotel = hotelMap.get(dto.getHotelId());
             if (hotel == null) {
-                throw new HotelNotFoundException("Hotel not found for id: " + dto.getHotelId());
+                throw new HotelNotFoundException("Hotel not found id: " + dto.getHotelId());
             }
             room.setHotel(hotel);
-            return room;
-        }).toList();
 
-        roomRepository.saveAll(rooms);
+            roomRepository.save(room);
+        }
     }
 
     public Room getRoomById(Long id) {
         return roomRepository.findById(id)
-                .orElseThrow(() -> new RoomNotFoundException("Room not found for id: " + id));
+                .orElseThrow(() -> new RoomNotFoundException("Room not found  id: " + id));
     }
 
     @Transactional
     public Room updateRoom(Long id, RoomDto roomDto) {
         Room room = getRoomById(id);
 
-        mapper.updateRoomFromDto(roomDto, room);
+        room.setRoomNumber(roomDto.getRoomNumber());
+        room.setCapacity(roomDto.getCapacity());
+        room.setPrice(roomDto.getPrice());
+        room.setIsAvailable(roomDto.getIsAvailable());
+        room.setType(roomDto.getRoomType());
 
         Hotel hotel = hotelRepository.findById(roomDto.getHotelId())
                 .orElseThrow(() -> new HotelNotFoundException("Hotel not found for id: " + roomDto.getHotelId()));
@@ -92,8 +112,7 @@ public class RoomService {
 
     public List<Room> findRoomByCapacityRange(Integer minCapacity, Integer maxCapacity) {
         return getAllRooms().stream()
-                .filter(r -> r.getCapacity() >= minCapacity
-                        && r.getCapacity() <= maxCapacity)
+                .filter(r -> r.getCapacity() >= minCapacity && r.getCapacity() <= maxCapacity)
                 .toList();
     }
 
