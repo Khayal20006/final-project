@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface HotelMapper {
     Hotel toEntity(HotelDto dto);
     HotelDto toDto(Hotel hotel);

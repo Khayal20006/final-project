@@ -11,14 +11,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/hotel/")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Hotel Controller", description = "Hotel ilə bağlı əməliyyatlar")
 public class HotelController {
     private final HotelService hotelService;
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/createHotel")
     @Operation(summary = "Yeni hotel yarat")
     public HotelDto createHotel(@RequestBody HotelDto hotelDto) {
@@ -37,15 +37,18 @@ public class HotelController {
         return hotelService.getHotelById(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/updateHotel/{id}")
     @Operation(summary = "Hoteli id ilə yenilə", description = "id-ni yazmaqla hoteli yeniləmək")
     public HotelDto updateHotel(@PathVariable Long id, @RequestBody HotelDto hotelDto) {
         return hotelService.updateHotel(id, hotelDto);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/admin/deleteHotelById/{id}")
     @Operation(summary = "Hotel sil", description = "ID-yə uyğun hotel silinir")
     public void deleteHotel(@PathVariable Long id) {
         hotelService.deleteHotel(id);
     }
 }
+
