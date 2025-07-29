@@ -5,6 +5,7 @@ import com.example.finalproject.entity.Hotel;
 import com.example.finalproject.service.HotelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,10 +22,10 @@ public class HotelController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/createHotel")
     @Operation(summary = "Yeni hotel yarat")
-    public HotelDto createHotel(@RequestBody HotelDto hotelDto) {
+
+    public HotelDto createHotel( @RequestBody HotelDto hotelDto) {
         return hotelService.createHotel(hotelDto);
     }
-
     @GetMapping("/getAllHotels")
     @Operation(summary = "Bütün hotelləri gətir", description = "Sistemdə mövcud olan bütün hotelləri göstərir")
     public ResponseEntity<List<HotelDto>> getAllHotels() {

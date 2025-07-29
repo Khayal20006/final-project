@@ -3,7 +3,6 @@ package com.example.finalproject.service;
 import com.example.finalproject.dto.HotelDto;
 import com.example.finalproject.entity.Hotel;
 import com.example.finalproject.exception.HotelNotFoundException;
-import com.example.finalproject.mapper.HotelMapper;
 import com.example.finalproject.repository.HotelRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,21 +17,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HotelService {
     private final HotelRepository hotelRepository;
-    private final HotelMapper mapper;
 
     public List<HotelDto> getAllHotels() {
         List<Hotel> hotels = hotelRepository.findAll();
         return hotels.stream()
-                .map(mapper::toDto)
+                .map(this::toDto)
                 .toList();
     }
 
     @Transactional
     public HotelDto createHotel(HotelDto hotelDto) {
-        Hotel hotel = mapper.toEntity(hotelDto);
+        log.info("Received HotelDto: {}", hotelDto);
+
+        Hotel hotel = new Hotel();
+        hotel.setName(hotelDto.getName());
+        hotel.setAddress(hotelDto.getAddress());
+        hotel.setStars(hotelDto.getStars());
         hotel.setRooms(new ArrayList<>());
+
+        log.info("Created Hotel entity: {}", hotel);
+
         Hotel savedHotel = hotelRepository.save(hotel);
-        return mapper.toDto(savedHotel);
+        log.info("Saved Hotel entity: {}", savedHotel);
+
+        return toDto(savedHotel);
     }
 
     public Hotel getHotelById(Long id) {
@@ -40,13 +48,22 @@ public class HotelService {
                 .orElseThrow(() -> new HotelNotFoundException("Hotel doesnt exist"));
     }
 
-
     @Transactional
     public HotelDto updateHotel(Long id, HotelDto hotelDto) {
         Hotel hotel = getHotelById(id);
-        mapper.updateHotelFromDto(hotelDto, hotel);
+
+        if (hotelDto.getName() != null) {
+            hotel.setName(hotelDto.getName());
+        }
+        if (hotelDto.getAddress() != null) {
+            hotel.setAddress(hotelDto.getAddress());
+        }
+        if (hotelDto.getStars() != null) {
+            hotel.setStars(hotelDto.getStars());
+        }
+
         Hotel updatedHotel = hotelRepository.save(hotel);
-        return mapper.toDto(updatedHotel);
+        return toDto(updatedHotel);
     }
 
     @Transactional
@@ -54,5 +71,14 @@ public class HotelService {
         Hotel hotel = getHotelById(id);
         hotelRepository.delete(hotel);
         log.info("Hotel deleted from database successfully");
+    }
+
+    private HotelDto toDto(Hotel hotel) {
+        HotelDto dto = new HotelDto();
+        dto.setId(hotel.getId());
+        dto.setName(hotel.getName());
+        dto.setAddress(hotel.getAddress());
+        dto.setStars(hotel.getStars());
+        return dto;
     }
 }
