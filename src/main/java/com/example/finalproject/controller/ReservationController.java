@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.DateFormatter;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -44,13 +46,41 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getReservationsByStatus(status));
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PostMapping
     @Operation(summary = "Yeni rezervasiya yarat")
-    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationDto dto, Authentication authentication) {
-        Reservation reservation = reservationService.createReservation(dto, authentication);
-        return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
+    public ResponseEntity<ReservationDto> createReservation(@RequestBody ReservationDto dto, Authentication authentication) {
+        boolean isAvailable = reservationService.isRoomAvailable(dto.getRoomId(), dto.getCheckInDate(), dto.getCheckOutDate());
+
+        if (isAvailable) {
+            ReservationDto reservation = reservationService.createReservation(dto, authentication);
+            return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
     }
+
+    @GetMapping("/check-room-free")
+    @Operation(summary = "Check if room is free between dates")
+    public ResponseEntity<String> isRoomFree(
+            @RequestParam Long roomId,
+            @RequestParam LocalDate checkInDate,
+            @RequestParam LocalDate checkOutDate) {
+
+
+        if (checkOutDate.isBefore(checkInDate)) {
+            throw new IllegalArgumentException("Check-out date must be after check-in date");
+        }
+        boolean isFree = reservationService.isRoomFree(roomId, checkInDate, checkOutDate);
+
+        if (isFree) {return ResponseEntity.ok("Room is free");
+        }
+        else {
+            return ResponseEntity.ok("Room is not free");
+        }
+    }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/status")
@@ -59,7 +89,7 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.updateReservationStatus(id, status));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PutMapping("/{id}/cancel")
     @Operation(summary = "Rezervasiyanı ləğv et")
     public ResponseEntity<Void> cancelReservation(@PathVariable Long id) {
