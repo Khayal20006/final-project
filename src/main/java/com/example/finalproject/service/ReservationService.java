@@ -45,7 +45,15 @@ public class ReservationService {
                 .findReservationsThatOverlap(roomId, checkInDate, checkOutDate);
         return overlappingReservations.isEmpty();
     }
-
+    @Transactional
+    public void forceDeleteReservation(Long id) {
+        Reservation reservation = findUserById(id);
+        reservationRepository.delete(reservation);
+    }
+    public Reservation findUserById(Long id){
+        return reservationRepository.findById(id)
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found"));
+    }
     public boolean isRoomFree(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
         List<Reservation> reservations = reservationRepository.findReservationsThatOverlap(roomId, checkInDate, checkOutDate);
         return reservations.isEmpty();
@@ -73,7 +81,7 @@ public class ReservationService {
         reservation.setCheckInDate(dto.getCheckInDate());
         reservation.setCheckOutDate(dto.getCheckOutDate());
         reservation.setTotalAmount(totalAmount);
-        reservation.setStatus(Status.PENDING);
+        reservation.setStatus(Status.CONFIRMED);
 
         room.setIsAvailable(false);
         roomRepository.save(room);
@@ -84,7 +92,6 @@ public class ReservationService {
     }
 
     @Transactional
-
     public Reservation updateReservationStatus(Long id, Status status) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(() -> new RuntimeException("Reservation not found"));
         reservation.setStatus(status);

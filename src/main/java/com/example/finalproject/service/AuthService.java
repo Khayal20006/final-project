@@ -1,4 +1,5 @@
 package com.example.finalproject.service;
+
 import com.example.finalproject.dto.LoginRequestDto;
 import com.example.finalproject.dto.LoginResponseDto;
 import com.example.finalproject.dto.UserDto;
@@ -13,9 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -23,6 +21,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+
     @Transactional
     public LoginResponseDto login(LoginRequestDto request) {
         User user = userRepository.findByEmail(request.getEmail())
@@ -31,7 +30,9 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new WrongPasswordException("Wrong password");
         }
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+
+        String accessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole().name());
 
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
@@ -39,9 +40,9 @@ public class AuthService {
         userDto.setEmail(user.getEmail());
         userDto.setRole(user.getRole());
 
-        return new LoginResponseDto(token, "Login successful", userDto);
-
+        return new LoginResponseDto(accessToken, refreshToken, "Login successful", userDto);
     }
+
     @Transactional
     public LoginResponseDto register(UserDto userDto) {
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
@@ -56,12 +57,12 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String accessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getRole().name());
 
         userDto.setId(user.getId());
         userDto.setPassword(null);
 
-        return new LoginResponseDto(token, "Registration successful", userDto);
+        return new LoginResponseDto(accessToken, refreshToken, "Registration successful", userDto);
     }
-
 }

@@ -3,6 +3,7 @@ package com.example.finalproject.controller;
 import com.example.finalproject.dto.ReservationDto;
 import com.example.finalproject.entity.Reservation;
 import com.example.finalproject.entity.enums.Status;
+import com.example.finalproject.exception.ReservationNotFoundException;
 import com.example.finalproject.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.swing.text.DateFormatter;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -25,7 +27,7 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    @GetMapping
+    @GetMapping("/get-All-Reservations")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Bütün rezervasiyaları gətir")
     public ResponseEntity<List<Reservation>> getAllReservations() {
@@ -47,10 +49,14 @@ public class ReservationController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    @PostMapping
+    @PostMapping("/create-reservation")
     @Operation(summary = "Yeni rezervasiya yarat")
     public ResponseEntity<ReservationDto> createReservation(@RequestBody ReservationDto dto, Authentication authentication) {
-        boolean isAvailable = reservationService.isRoomAvailable(dto.getRoomId(), dto.getCheckInDate(), dto.getCheckOutDate());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDate checkInDate = dto.getCheckInDate();
+        LocalDate checkOutDate =dto.getCheckOutDate();
+        boolean isAvailable = reservationService.isRoomAvailable(dto.getRoomId(), checkInDate, checkOutDate);
 
         if (isAvailable) {
             ReservationDto reservation = reservationService.createReservation(dto, authentication);
@@ -59,27 +65,16 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(null);
         }
+
+    }
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @DeleteMapping("/reservasiyani sil")
+    @Operation(summary = "Reservationlari sil yalniz admin")
+    public void deleteReservation(Long id) {
+        reservationService.forceDeleteReservation(id);
     }
 
-    @GetMapping("/check-room-free")
-    @Operation(summary = "Check if room is free between dates")
-    public ResponseEntity<String> isRoomFree(
-            @RequestParam Long roomId,
-            @RequestParam LocalDate checkInDate,
-            @RequestParam LocalDate checkOutDate) {
 
-
-        if (checkOutDate.isBefore(checkInDate)) {
-            throw new IllegalArgumentException("Check-out date must be after check-in date");
-        }
-        boolean isFree = reservationService.isRoomFree(roomId, checkInDate, checkOutDate);
-
-        if (isFree) {return ResponseEntity.ok("Room is free");
-        }
-        else {
-            return ResponseEntity.ok("Room is not free");
-        }
-    }
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -97,10 +92,4 @@ public class ReservationController {
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    @GetMapping("/byUser/{userId}")
-    @Operation(summary = "Alternativ yolla istifadəçiyə görə rezervasiyaları gətir")
-    public ResponseEntity<List<Reservation>> findAllByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(reservationService.findAllByUserId(userId));
-    }
 }

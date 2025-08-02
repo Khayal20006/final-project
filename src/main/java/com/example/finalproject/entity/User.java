@@ -1,6 +1,7 @@
 package com.example.finalproject.entity;
 
 import com.example.finalproject.entity.enums.Role;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,5 +32,6 @@ public class User {
 
 
     @OneToMany(mappedBy = "user",cascade =CascadeType.ALL)
+    @JsonBackReference
     private List<Reservation>reservations;
 }

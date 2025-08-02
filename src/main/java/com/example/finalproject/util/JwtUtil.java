@@ -17,6 +17,8 @@ public class JwtUtil {
 
     @Value("${dreamSecretKey2006}")
     private String secret;
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshExpiration;
 
     @Value("${jwt.expiration:86400000}")
     private Long expiration;
@@ -42,6 +44,17 @@ public class JwtUtil {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    public String generateRefreshToken(String email, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
