@@ -4,14 +4,19 @@ spring:
       name: user
       password: 1234
 
-
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: 1234
     driver-class-name: org.postgresql.Driver
 
-
+    hikari:
+      maximum-pool-size: 8
+      minimum-idle: 2
+      idle-timeout: 60000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      validation-timeout: 5000
 
   jpa:
     hibernate:
@@ -21,9 +26,13 @@ spring:
       hibernate:
         format_sql: true
 
+logging:
+  level:
+    root: INFO
+    com.zaxxer.hikari: WARN
+
 dreamSecretKey2006: myDreamSecretKeyItIsEnoughForMe2006!
 
 jwt:
   expiration: 900000
   refresh-expiration: 604800000
-
