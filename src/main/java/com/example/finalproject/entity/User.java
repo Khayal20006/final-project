@@ -3,6 +3,7 @@ package com.example.finalproject.entity;
 import com.example.finalproject.entity.enums.Role;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

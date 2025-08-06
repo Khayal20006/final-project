@@ -6,6 +6,7 @@ import com.example.finalproject.dto.UserDto;
 import com.example.finalproject.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,14 +20,14 @@ public class AuthController {
     private final AuthService authService;
     @PostMapping("/login")
     @Operation(summary = "User login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequest) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto loginRequest) {
             LoginResponseDto response = authService.login(loginRequest);
             return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     @Operation(summary = "User registration")
-    public ResponseEntity<LoginResponseDto> register(@RequestBody UserDto userDto) {
+    public ResponseEntity<LoginResponseDto> register(@RequestBody @Valid UserDto userDto) {
             LoginResponseDto response = authService.register(userDto);
             return ResponseEntity.ok(response);
 

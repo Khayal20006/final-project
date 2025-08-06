@@ -5,6 +5,7 @@ import com.example.finalproject.entity.User;
 import com.example.finalproject.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,13 +36,13 @@ public class UserController {
     }
     @Operation(summary = "Userleri  yaradir  admin ucun")
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserDto userDto) {
         User createdUser = userService.createUser(userDto);
         return ResponseEntity.ok(createdUser);
     }
     @PutMapping("/{id}")
     @Operation(summary = "ID ye gore useri update edir  admin ucun")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody @Valid UserDto userDto) {
         User updatedUser = userService.updateUser(id, userDto);
         return ResponseEntity.ok(updatedUser);
     }
