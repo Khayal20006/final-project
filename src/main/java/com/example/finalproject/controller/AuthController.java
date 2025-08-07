@@ -32,4 +32,10 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
     }
+    @PostMapping("/refresh-token")
+    @Operation(summary = "Get new access token using refresh token")
+    public ResponseEntity<LoginResponseDto> refreshToken(@RequestParam("refreshToken") String refreshToken) {
+        LoginResponseDto response = authService.refreshToken(refreshToken);
+        return ResponseEntity.ok(response);
+    }
 }

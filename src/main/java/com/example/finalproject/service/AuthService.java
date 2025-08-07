@@ -11,6 +11,7 @@ import com.example.finalproject.repository.UserRepository;
 import com.example.finalproject.util.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -65,4 +66,29 @@ public class AuthService {
 
         return new LoginResponseDto(accessToken, refreshToken, "Registration successful", userDto);
     }
+    public LoginResponseDto refreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("Refresh token must not be empty");
+        }
+
+        if (!jwtUtil.isTokenValid(refreshToken)) {
+            throw new SecurityException("Refresh token is invalid or expired");
+        }
+
+        String email = jwtUtil.getEmailFromToken(refreshToken);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        String newAccessToken = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setFullName(user.getFullName());
+        userDto.setEmail(user.getEmail());
+        userDto.setRole(user.getRole());
+
+        return new LoginResponseDto(newAccessToken, refreshToken, "Token refreshed successfully", userDto);
+    }
+
+
 }
