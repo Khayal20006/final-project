@@ -46,7 +46,7 @@ public class UserService {
         List<Reservation> reservations = new ArrayList<>();
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
         user.setEmail(userDto.getEmail());
-        user.setRole(userDto.getRole());
+        user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setFullName(userDto.getFullName());
         user.setReservations(reservations);

@@ -6,13 +6,11 @@ import com.example.finalproject.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -100,11 +98,12 @@ public class RoomController {
     @GetMapping("/search/availability")
     @Operation(summary = "Tarix aralığında mövcud otaqları gətir")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<List<Room>> findAvailableRoomsByDateRange(
-            @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate checkInDate,
-            @RequestParam @DateTimeFormat(pattern = "dd.MM.yyyy") LocalDate checkOutDate) {
 
-        List<Room> rooms = roomService.findAvailableRoomsByDateRange(checkInDate, checkOutDate);
+    public ResponseEntity<List<Room>> findAvailableRoomsByDateRange(@RequestParam String checkInDate,
+                                                                    @RequestParam String checkOutDate) {
+        List<Room> rooms = roomService.findAvailableRoomsByDateRange(
+                LocalDate.parse(checkInDate),
+                LocalDate.parse(checkOutDate));
         return ResponseEntity.ok(rooms);
     }
 }
