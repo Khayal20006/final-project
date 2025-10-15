@@ -1,7 +1,7 @@
 package com.example.finalproject.service;
 
 import com.example.finalproject.config.PasswordConfig;
-import com.example.finalproject.config.SecurityConfig;
+import com.example.finalproject.config.SwaggerConfig;
 import com.example.finalproject.dto.UserDto;
 import com.example.finalproject.entity.Reservation;
 import com.example.finalproject.entity.User;

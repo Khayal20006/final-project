@@ -15,6 +15,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/hotel/")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
+
 @Tag(name = "Hotel Controller", description = "Hotel ilə bağlı əməliyyatlar")
 public class HotelController {
     private final HotelService hotelService;
@@ -38,7 +40,7 @@ public class HotelController {
         return hotelService.getHotelById(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+   @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/admin/updateHotel/{id}")
     @Operation(summary = "Hoteli id ilə yenilə", description = "id-ni yazmaqla hoteli yeniləmək")
     public HotelDto updateHotel(@PathVariable Long id, @RequestBody HotelDto hotelDto) {

@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/hotel/users")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 @PreAuthorize("hasRole('ADMIN')")
 @Tag(description = "Userle bagli butun esas emeliyyetlar admin ucun",name = "User emeliyyatlari")
 public class UserController {

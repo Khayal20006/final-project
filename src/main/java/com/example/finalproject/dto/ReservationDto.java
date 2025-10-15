@@ -11,15 +11,21 @@ import java.time.LocalDate;
 public class ReservationDto {
     @Schema(hidden = true)
     private Long id;
+
     @Schema(hidden = true)
     private Status status;
+
     @Schema(hidden = true)
     private Long userId;
+
     private Long roomId;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate checkInDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
+
+    @JsonFormat( pattern = "yyyy-MM-dd")
     private LocalDate checkOutDate;
+
     @Schema(hidden = true)
     private Double totalAmount;
 }

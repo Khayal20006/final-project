@@ -22,6 +22,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/hotel/reservations")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
+
 @Tag(name = "Reservation əməliyyatları", description = "Rezervasiya ilə bağlı API əməliyyatları")
 public class ReservationController {
 
@@ -53,24 +55,21 @@ public class ReservationController {
     @Operation(summary = "Yeni rezervasiya yarat")
     public ResponseEntity<ReservationDto> createReservation(@RequestBody ReservationDto dto, Authentication authentication) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        LocalDate checkInDate = dto.getCheckInDate();
-        LocalDate checkOutDate =dto.getCheckOutDate();
-        boolean isAvailable = reservationService.isRoomAvailable(dto.getRoomId(), checkInDate, checkOutDate);
+        boolean isAvailable = reservationService.isRoomAvailable(dto.getRoomId(), dto.getCheckInDate(), dto.getCheckOutDate());
 
         if (isAvailable) {
             ReservationDto reservation = reservationService.createReservation(dto, authentication);
             return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
+
 
     }
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @DeleteMapping("/reservasiyani sil")
+    @DeleteMapping("/{id}")
     @Operation(summary = "Reservationlari sil yalniz admin")
-    public void deleteReservation(Long id) {
+    public void deleteReservation(@PathVariable Long id) {
         reservationService.forceDeleteReservation(id);
     }
 
