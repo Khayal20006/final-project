@@ -5,9 +5,9 @@ spring:
       password: 1234
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: user
-    password: 1234
+    url: jdbc:postgresql://dpg-d3nkhvadbo4c73d2j6d0-a.oregon-postgres.render.com:5432/hotel_db_8nag
+    username: hotel_db_8nag_user
+    password: Kjf2kHElxLlA6J3tYw3LsGcreKwXhgIs
     driver-class-name: org.postgresql.Driver
 
     hikari:
